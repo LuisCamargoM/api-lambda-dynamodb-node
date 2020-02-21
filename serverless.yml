@@ -1,12 +1,12 @@
-service: api-lambda-dynamodb-node
+service: api-aws-crud-nodejs
 
 custom:
   settings:
-    POSTS_TABLE: users
+    POSTS_TABLE: usuarios
 
 provider:
   name: aws
-  runtime: nodejs12.x #sempre colocar neste formato para não dar problema de versão na aws
+  runtime: nodejs12.x
   region: sa-east-1
   environment: ${self:custom.settings}
   iamRoleStatements:
@@ -22,41 +22,41 @@ provider:
       - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.POSTS_TABLE}"
 
 functions:
-  createUser:
-    handler: handler.createUser
+  createPost:
+    handler: handler.createPost
     events:
     - http:
-        path: /user
+        path: /post
         method: post
-  getAllUsers:
-    handler: handler.getAllUsers
+  getAllPosts:
+    handler: handler.getAllPosts
     events:
     - http:
-        path: /users
+        path: /posts
         method: get
-  getUsers:
-    handler: handler.getUsers
+  getPosts:
+    handler: handler.getPosts
     events:
     - http:
-        path: /users/{number}
+        path: /posts/{number}
         method: get
-  getUser:
-    handler: handler.getUser
+  getPost:
+    handler: handler.getPost
     events:
     - http:
-        path: /user/{id}
+        path: /post/{id}
         method: get
-  updateUser:
-    handler: handler.updateUser
+  updatePost:
+    handler: handler.updatePost
     events:
     - http:
-        path: /user/{id}
+        path: /post/{id}
         method: put
-  deleteUser:
-    handler: handler.deleteUser
+  deletePost:
+    handler: handler.deletePost
     events:
     - http:
-        path: /user/{id}
+        path: /post/{id}
         method: delete
 
 resources:
