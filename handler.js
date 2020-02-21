@@ -1,9 +1,9 @@
 'use strict';
 const AWS = require('aws-sdk');
-const db = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
+const db = new AWS.DynamoDB.DocumentClient();
 const uuid = require('uuid/v4');
 
-const postsTable = process.env.POSTS_TABLE;
+const usersTable = process.env.POSTS_TABLE;
 // Create a response
 function response(statusCode, message) {
     return {
@@ -18,7 +18,7 @@ function sortByDate(a, b) {
     } else return 1;
 }
 // Create a post
-module.exports.createPost = (event, context, callback) => {
+module.exports.createUser = (event, context, callback) => {
     const reqBody = JSON.parse(event.body);
 
     if (!reqBody.title ||
@@ -34,7 +34,7 @@ module.exports.createPost = (event, context, callback) => {
         );
     }
 
-    const post = {
+    const user = {
         id: uuid(),
         createdAt: new Date().toISOString(),
         userId: 1,
@@ -44,20 +44,20 @@ module.exports.createPost = (event, context, callback) => {
 
     return db
         .put({
-            TableName: postsTable,
+            TableName: usersTable,
             Item: post
         })
         .promise()
         .then(() => {
-            callback(null, response(201, post));
+            callback(null, response(201, user));
         })
         .catch((err) => response(null, response(err.statusCode, err)));
 };
 // Get all posts
-module.exports.getAllPosts = (event, context, callback) => {
+module.exports.getAllUsers = (event, context, callback) => {
     return db
         .scan({
-            TableName: postsTable
+            TableName: usersTable
         })
         .promise()
         .then((res) => {
@@ -66,11 +66,11 @@ module.exports.getAllPosts = (event, context, callback) => {
         .catch((err) => callback(null, response(err.statusCode, err)));
 };
 // Get number of posts
-module.exports.getPosts = (event, context, callback) => {
-    const numberOfPosts = event.pathParameters.number;
+module.exports.getUsers = (event, context, callback) => {
+    const numberOfUsers = event.pathParameters.number;
     const params = {
-        TableName: postsTable,
-        Limit: numberOfPosts
+        TableName: usersTable,
+        Limit: numberOfUsers
     };
     return db
         .scan(params)
@@ -81,14 +81,14 @@ module.exports.getPosts = (event, context, callback) => {
         .catch((err) => callback(null, response(err.statusCode, err)));
 };
 // Get a single post
-module.exports.getPost = (event, context, callback) => {
+module.exports.getUser = (event, context, callback) => {
     const id = event.pathParameters.id;
 
     const params = {
         Key: {
             id: id
         },
-        TableName: postsTable
+        TableName: usersTable
     };
 
     return db
@@ -96,12 +96,12 @@ module.exports.getPost = (event, context, callback) => {
         .promise()
         .then((res) => {
             if (res.Item) callback(null, response(200, res.Item));
-            else callback(null, response(404, { error: 'Post not found' }));
+            else callback(null, response(404, { error: 'User not found' }));
         })
         .catch((err) => callback(null, response(err.statusCode, err)));
 };
 // Update a post
-module.exports.updatePost = (event, context, callback) => {
+module.exports.updateUser = (event, context, callback) => {
     const id = event.pathParameters.id;
     const reqBody = JSON.parse(event.body);
     const { body, title } = reqBody;
@@ -110,7 +110,7 @@ module.exports.updatePost = (event, context, callback) => {
         Key: {
             id: id
         },
-        TableName: postsTable,
+        TableName: usersTable,
         ConditionExpression: 'attribute_exists(id)',
         UpdateExpression: 'SET title = :title, body = :body',
         ExpressionAttributeValues: {
@@ -137,13 +137,13 @@ module.exports.deletePost = (event, context, callback) => {
         Key: {
             id: id
         },
-        TableName: postsTable
+        TableName: usersTable
     };
     return db
         .delete(params)
         .promise()
         .then(() =>
-            callback(null, response(200, { message: 'Post deleted successfully' }))
+            callback(null, response(200, { message: 'User deleted successfully' }))
         )
         .catch((err) => callback(null, response(err.statusCode, err)));
 };

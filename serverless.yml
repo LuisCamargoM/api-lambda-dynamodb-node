@@ -1,13 +1,13 @@
-service: sls
+service: api-lambda-dynamodb-node
 
 custom:
   settings:
-    POSTS_TABLE: posts
+    POSTS_TABLE: users
 
 provider:
   name: aws
-  runtime: nodejs8.10
-  region: eu-west-2
+  runtime: nodejs12.x #sempre colocar neste formato para não dar problema de versão na aws
+  region: sa-east-1
   environment: ${self:custom.settings}
   iamRoleStatements:
    - Effect: "Allow"
@@ -22,41 +22,41 @@ provider:
       - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.POSTS_TABLE}"
 
 functions:
-  createPost:
-    handler: handler.createPost
+  createUser:
+    handler: handler.createUser
     events:
     - http:
-        path: /post
+        path: /user
         method: post
-  getAllPosts:
-    handler: handler.getAllPosts
+  getAllUsers:
+    handler: handler.getAllUsers
     events:
     - http:
-        path: /posts
+        path: /users
         method: get
-  getPosts:
-    handler: handler.getPosts
+  getUsers:
+    handler: handler.getUsers
     events:
     - http:
-        path: /posts/{number}
+        path: /users/{number}
         method: get
-  getPost:
-    handler: handler.getPost
+  getUser:
+    handler: handler.getUser
     events:
     - http:
-        path: /post/{id}
+        path: /user/{id}
         method: get
-  updatePost:
-    handler: handler.updatePost
+  updateUser:
+    handler: handler.updateUser
     events:
     - http:
-        path: /post/{id}
+        path: /user/{id}
         method: put
-  deletePost:
-    handler: handler.deletePost
+  deleteUser:
+    handler: handler.deleteUser
     events:
     - http:
-        path: /post/{id}
+        path: /user/{id}
         method: delete
 
 resources:
