@@ -1,8 +1,8 @@
-service: api-aws-crud-nodejs
+service: api-aws-crud-nodejs-dynamobd
 
 custom:
   settings:
-    POSTS_TABLE: usuarios
+    LOGS_TABLE: logs
 
 provider:
   name: aws
@@ -19,49 +19,49 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
      Resource:
-      - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.POSTS_TABLE}"
+      - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.LOGS_TABLE}"
 
 functions:
-  createPost:
-    handler: handler.createPost
+  createLog:
+    handler: handler.createLog
     events:
     - http:
-        path: /post
+        path: /log
         method: post
-  getAllPosts:
-    handler: handler.getAllPosts
+  getAllLogs:
+    handler: handler.getAllLogs
     events:
     - http:
-        path: /posts
+        path: /logs
         method: get
-  getPosts:
-    handler: handler.getPosts
+  getLogs:
+    handler: handler.getLogs
     events:
     - http:
-        path: /posts/{number}
+        path: /logs/{number}
         method: get
-  getPost:
-    handler: handler.getPost
+  getLog:
+    handler: handler.getLog
     events:
     - http:
-        path: /post/{id}
+        path: /log/{id}
         method: get
-  updatePost:
-    handler: handler.updatePost
+  updateLog:
+    handler: handler.updateLog
     events:
     - http:
-        path: /post/{id}
+        path: /log/{id}
         method: put
-  deletePost:
-    handler: handler.deletePost
+  deleteLog:
+    handler: handler.deleteLog
     events:
     - http:
-        path: /post/{id}
+        path: /log/{id}
         method: delete
 
 resources:
   Resources:
-    PostsTable:
+    LogsTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
@@ -73,4 +73,4 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-        TableName: ${self:custom.settings.POSTS_TABLE}
+        TableName: ${self:custom.settings.LOGS_TABLE}

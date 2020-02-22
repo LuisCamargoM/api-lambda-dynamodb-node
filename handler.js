@@ -3,7 +3,7 @@ const AWS = require('aws-sdk');
 const db = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 const uuid = require('uuid/v4');
 
-const postsTable = process.env.POSTS_TABLE;
+const logsTable = process.env.LOGS_TABLE;
 // Create a response
 function response(statusCode, message) {
     return {
@@ -17,8 +17,8 @@ function sortByDate(a, b) {
         return -1;
     } else return 1;
 }
-// Create a post
-module.exports.createPost = (event, context, callback) => {
+// FUNÇÃO PARA CRIAR UM LOG NO BD
+module.exports.createLog = (event, context, callback) => {
     const reqBody = JSON.parse(event.body);
 
     if (!reqBody.title ||
@@ -29,35 +29,34 @@ module.exports.createPost = (event, context, callback) => {
         return callback(
             null,
             response(400, {
-                error: 'Post must have a title and body and they must not be empty'
+                error: 'Informe um titulo e corpo para o log'
             })
         );
     }
 
-    const post = {
+    const log = {
         id: uuid(),
         createdAt: new Date().toISOString(),
-        userId: 1,
         title: reqBody.title,
         body: reqBody.body
     };
 
     return db
         .put({
-            TableName: postsTable,
-            Item: post
+            TableName: logsTable,
+            Item: log
         })
         .promise()
         .then(() => {
-            callback(null, response(201, post));
+            callback(null, response(201, log));
         })
         .catch((err) => response(null, response(err.statusCode, err)));
 };
-// Get all posts
-module.exports.getAllPosts = (event, context, callback) => {
+// FUNÇAO ONDE RETORNA TODOS OS  LOGS
+module.exports.getAllLogs = (event, context, callback) => {
     return db
         .scan({
-            TableName: postsTable
+            TableName: logsTable
         })
         .promise()
         .then((res) => {
@@ -65,12 +64,12 @@ module.exports.getAllPosts = (event, context, callback) => {
         })
         .catch((err) => callback(null, response(err.statusCode, err)));
 };
-// Get number of posts
-module.exports.getPosts = (event, context, callback) => {
-    const numberOfPosts = event.pathParameters.number;
+// FUNÇÃO DE RETORNAR OS LOGS AGRUPADPS POR DATA
+module.exports.getLogs = (event, context, callback) => {
+    const numberOfLogs = event.pathParameters.number;
     const params = {
-        TableName: postsTable,
-        Limit: numberOfPosts
+        TableName: logsTable,
+        Limit: numberOfLogs
     };
     return db
         .scan(params)
@@ -80,15 +79,15 @@ module.exports.getPosts = (event, context, callback) => {
         })
         .catch((err) => callback(null, response(err.statusCode, err)));
 };
-// Get a single post
-module.exports.getPost = (event, context, callback) => {
+// RETORNA UM UNICO LOG PELO ID
+module.exports.getLog = (event, context, callback) => {
     const id = event.pathParameters.id;
 
     const params = {
         Key: {
             id: id
         },
-        TableName: postsTable
+        TableName: logsTable
     };
 
     return db
@@ -96,12 +95,12 @@ module.exports.getPost = (event, context, callback) => {
         .promise()
         .then((res) => {
             if (res.Item) callback(null, response(200, res.Item));
-            else callback(null, response(404, { error: 'Post not found' }));
+            else callback(null, response(404, { error: 'LOG não encontrado' }));
         })
         .catch((err) => callback(null, response(err.statusCode, err)));
 };
-// Update a post
-module.exports.updatePost = (event, context, callback) => {
+// FUNÇÃO DE EDIÇÃO DO LOG
+module.exports.updateLog = (event, context, callback) => {
     const id = event.pathParameters.id;
     const reqBody = JSON.parse(event.body);
     const { body, title } = reqBody;
@@ -110,7 +109,7 @@ module.exports.updatePost = (event, context, callback) => {
         Key: {
             id: id
         },
-        TableName: postsTable,
+        TableName: logsTable,
         ConditionExpression: 'attribute_exists(id)',
         UpdateExpression: 'SET title = :title, body = :body',
         ExpressionAttributeValues: {
@@ -131,19 +130,19 @@ module.exports.updatePost = (event, context, callback) => {
         .catch((err) => callback(null, response(err.statusCode, err)));
 };
 // Delete a post
-module.exports.deletePost = (event, context, callback) => {
+module.exports.deleteLog = (event, context, callback) => {
     const id = event.pathParameters.id;
     const params = {
         Key: {
             id: id
         },
-        TableName: postsTable
+        TableName: logsTable
     };
     return db
         .delete(params)
         .promise()
         .then(() =>
-            callback(null, response(200, { message: 'Post deleted successfully' }))
+            callback(null, response(200, { message: 'LOG deletadop com sucesso' }))
         )
         .catch((err) => callback(null, response(err.statusCode, err)));
 };
