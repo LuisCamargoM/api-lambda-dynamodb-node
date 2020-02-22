@@ -1,8 +1,8 @@
-service: api-aws-crud-nodejs-dynamobd
+service: api-aws-crud-dynamodb-nodejs
 
 custom:
   settings:
-    LOGS_TABLE: logs
+    LOGS_TABLE: Logs
 
 provider:
   name: aws
