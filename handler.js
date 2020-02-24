@@ -21,15 +21,15 @@ function sortByDate(a, b) {
 module.exports.createLog = (event, context, callback) => {
     const reqBody = JSON.parse(event.body);
 
-    if (!reqBody.title ||
-        reqBody.title.trim() === '' ||
-        !reqBody.body ||
-        reqBody.body.trim() === ''
+    if (!reqBody.arquivo_name ||
+        reqBody.arquivo_name.trim() === '' ||
+        !reqBody.bucket_name ||
+        reqBody.bucket_name.trim() === ''
     ) {
         return callback(
             null,
             response(400, {
-                error: 'Informe um titulo e corpo para o log'
+                error: 'Informe um valor para o aqruivo_name ou bucket_name'
             })
         );
     }
@@ -64,7 +64,7 @@ module.exports.getAllLogs = (event, context, callback) => {
         })
         .catch((err) => callback(null, response(err.statusCode, err)));
 };
-// FUNÇÃO DE RETORNAR OS LOGS AGRUPADPS POR DATA
+// FUNÇÃO DE RETORNA OS LOGS QUE VC INFORMAR NA URI
 module.exports.getLogs = (event, context, callback) => {
     const numberOfLogs = event.pathParameters.number;
     const params = {
@@ -103,7 +103,20 @@ module.exports.getLog = (event, context, callback) => {
 module.exports.updateLog = (event, context, callback) => {
     const id = event.pathParameters.id;
     const reqBody = JSON.parse(event.body);
-    const { body, title } = reqBody;
+    const { bucket_name, arquivo_name } = reqBody;
+
+    if (!reqBody.arquivo_name ||
+        reqBody.arquivo_name.trim() === '' ||
+        !reqBody.bucket_name ||
+        reqBody.bucket_name.trim() === ''
+    ) {
+        return callback(
+            null,
+            response(400, {
+                error: 'Informe um valor para o aqruivo_name ou bucket_name'
+            })
+        );
+    }
 
     const params = {
         Key: {
@@ -111,10 +124,11 @@ module.exports.updateLog = (event, context, callback) => {
         },
         TableName: logsTable,
         ConditionExpression: 'attribute_exists(id)',
-        UpdateExpression: 'SET title = :title, body = :body',
+        UpdateExpression: 'SET arquivo_name = :arquivo_name , bucket_name = :bucket_name',
         ExpressionAttributeValues: {
-            ':title': title,
-            ':body': body
+            ':arquivo_name': arquivo_name,
+            ':bucket_name': bucket_name
+
         },
         ReturnValues: 'ALL_NEW'
     };

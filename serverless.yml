@@ -1,8 +1,8 @@
-service: api-aws-crud-dynamodb-nodejs
+service: Api-awss-crud-nodejs-dynamodbs
 
 custom:
   settings:
-    LOGS_TABLE: Logs
+    LOGS_TABLE: testess
 
 provider:
   name: aws
@@ -22,12 +22,12 @@ provider:
       - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.LOGS_TABLE}"
 
 functions:
-  createLog:
-    handler: handler.createLog
-    events:
-    - http:
-        path: /log
-        method: post
+  # createLog:
+  #   handler: handler.createLog
+  #   events:
+  #   - http:
+  #       path: /log
+  #       method: post
   getAllLogs:
     handler: handler.getAllLogs
     events:
