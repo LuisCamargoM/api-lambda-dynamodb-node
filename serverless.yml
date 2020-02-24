@@ -2,7 +2,7 @@ service: Api-awss-crud-nodejs-dynamodbs
 
 custom:
   settings:
-    LOGS_TABLE: testess
+    LOGS_TABLE: Logs
 
 provider:
   name: aws
